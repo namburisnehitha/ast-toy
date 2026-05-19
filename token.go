@@ -16,6 +16,9 @@ const (
 	NUM
 	EOF
 	ILLEGAL
+	STRING
+	ERROR
+	NIL
 )
 
 type Token struct {
