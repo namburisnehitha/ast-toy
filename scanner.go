@@ -1,5 +1,7 @@
 package asttoy
 
+import "strconv"
+
 type Scanner struct {
 	Source  string
 	Start   int
@@ -35,12 +37,12 @@ func (s *Scanner) advance() byte {
 	return current
 }
 
-func (s *Scanner) makeToken(tokenType TokenType) Token {
+func (s *Scanner) makeToken(tokenType TokenType, literal any) Token {
 	return Token{
 		TokenType: tokenType,
 		Lexeme:    s.Source[s.Start:s.Current],
 		Line:      s.Line,
-		Literal:   nil,
+		Literal:   literal,
 	}
 }
 
@@ -48,17 +50,15 @@ func (s *Scanner) scanToken() {
 	c := s.advance()
 	switch c {
 	case '(':
-		s.Tokens = append(s.Tokens, s.makeToken(LPAREN))
+		s.Tokens = append(s.Tokens, s.makeToken(LPAREN, nil))
 	case ')':
-		s.Tokens = append(s.Tokens, s.makeToken(RPAREN))
+		s.Tokens = append(s.Tokens, s.makeToken(RPAREN, nil))
 	case '{':
-		s.Tokens = append(s.Tokens, s.makeToken(LBRACE))
+		s.Tokens = append(s.Tokens, s.makeToken(LBRACE, nil))
 	case '}':
-		s.Tokens = append(s.Tokens, s.makeToken(RBRACE))
+		s.Tokens = append(s.Tokens, s.makeToken(RBRACE, nil))
 	case ',':
-		s.Tokens = append(s.Tokens, s.makeToken(COMMA))
-	case '+':
-		s.Tokens = append(s.Tokens, s.makeToken(PLUS))
+		s.Tokens = append(s.Tokens, s.makeToken(COMMA, nil))
 	case ' ':
 		break
 	case '\t':
@@ -66,7 +66,13 @@ func (s *Scanner) scanToken() {
 	case '\n':
 		s.Line += 1
 	default:
-		s.Tokens = append(s.Tokens, s.makeToken(ILLEGAL))
+		if isAlpha(c) {
+			s.identifier()
+		} else if isDigit(c) {
+			s.number()
+		} else {
+			s.Tokens = append(s.Tokens, s.makeToken(ILLEGAL, nil))
+		}
 	}
 }
 
@@ -86,8 +92,43 @@ var keyWords = map[string]TokenType{
 	"func":   FUN,
 	"return": RETURN,
 	"int":    INT,
+	"string": STRING,
+	"error":  ERROR,
+	"nil":    NIL,
 }
 
 func (s *Scanner) isAtEnd() bool {
 	return s.Current >= len(s.Source)
+}
+
+func (s *Scanner) peek() byte {
+	if s.isAtEnd() {
+		return 0
+	}
+	return s.Source[s.Current]
+}
+
+func (s *Scanner) identifier() {
+	for isAlphaNumeric(s.peek()) {
+		s.advance()
+	}
+	text := s.Source[s.Start:s.Current]
+	tokenType, ok := keyWords[text]
+	if !ok {
+		tokenType = IDENTIFIER
+	}
+	s.Tokens = append(s.Tokens, s.makeToken(tokenType, nil))
+}
+
+func (s *Scanner) number() {
+	for isDigit(s.peek()) {
+		s.advance()
+	}
+	num, err := strconv.Atoi(s.Source[s.Start:s.Current])
+	if err != nil {
+		s.Tokens = append(s.Tokens, s.makeToken(ILLEGAL, nil))
+		return
+	}
+	s.Tokens = append(s.Tokens, s.makeToken(NUM, num))
+
 }
