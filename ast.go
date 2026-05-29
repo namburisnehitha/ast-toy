@@ -6,10 +6,11 @@ type Node interface {
 
 type Stmt interface {
 	Node
-	stmtgNode()
+	stmtNode()
 }
 
 type Expr interface {
 	Node
 	exprNode()
 }
+

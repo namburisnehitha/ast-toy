@@ -4,18 +4,11 @@ type Ident struct {
 	Name string
 }
 
-func (i *Ident) nodeType() string {
-	return "Ident"
-}
-
+func (i *Ident) nodeType() string {return "Ident"}
 func (i *Ident) exprNode() {}
 
-type BasicLit struct {
-	Value string
-}
 
-func (bl *BasicLit) nodeType() string {
-	return "Literal"
-}
+type NilLit struct{}
 
-func (bl *BasicLit) exprNode() {}
+func (n *NilLit) nodeType() string { return "NilLit" }
+func (n *NilLit) exprNode()        {}
