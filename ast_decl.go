@@ -17,7 +17,7 @@ type Field struct {
 }
 
 type FieldList struct {
-	fieldList []Field
+	Fields []Field
 }
 
 func (f *File) nodeType() string      { return "File" }
