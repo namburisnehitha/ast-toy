@@ -19,6 +19,8 @@ const (
 	STRING
 	ERROR
 	NIL
+	DEFINE
+	DOT
 )
 
 type Token struct {
