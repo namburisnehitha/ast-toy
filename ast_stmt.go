@@ -20,4 +20,13 @@ func (rs *ReturnStmt) nodeType() string {
 
 func (rs *ReturnStmt) stmtNode() {}
 
+type AssignStmt struct {
+	ValueIdent []Ident
+	ExpeIdent  []Expr
+}
 
+func (as *AssignStmt) nodeType() string {
+	return "AssignStmt"
+}
+
+func (as *AssignStmt) stmtNode() {}
