@@ -59,6 +59,13 @@ func (s *Scanner) scanToken() {
 		s.Tokens = append(s.Tokens, s.makeToken(RBRACE, nil))
 	case ',':
 		s.Tokens = append(s.Tokens, s.makeToken(COMMA, nil))
+	case ':':
+		if s.peek() == '=' {
+			s.advance()
+			s.Tokens = append(s.Tokens, s.makeToken(DEFINE, nil))
+		}
+	case '.':
+		s.Tokens = append(s.Tokens, s.makeToken(DOT, nil))
 	case ' ':
 		break
 	case '\t':
