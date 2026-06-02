@@ -1,4 +1,4 @@
-package asttoy
+package main
 
 type File struct {
 	Decls []*FuncDecl
