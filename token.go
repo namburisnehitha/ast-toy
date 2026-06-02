@@ -1,4 +1,4 @@
-package asttoy
+package main
 
 type TokenType int
 
