@@ -1,4 +1,4 @@
-package asttoy
+package main
 
 import "fmt"
 
@@ -52,29 +52,41 @@ func (p *Parser) parseIdent() *Ident {
 
 func (p *Parser) parseFieldList() *FieldList {
 	fields := &FieldList{}
-	for !p.check(RPAREN) {
+	for !p.check(RPAREN) && !p.check(EOF) {
+
 		field := &Field{}
 
-		field.Name = p.parseIdent()
+		if p.check(IDENTIFIER) && p.isType(p.peekNext()) {
+			field.Name = p.parseIdent()
+		}
+
 		field.Type = p.parseType()
 
 		if p.check(COMMA) {
 			p.advance()
 		}
+
 		fields.Fields = append(fields.Fields, *field)
 	}
 	return fields
 }
 
+func (p *Parser) isType(t Token) bool {
+	switch t.TokenType {
+	case STRING, ERROR, INT, IDENTIFIER:
+		return true
+	default:
+		return false
+	}
+}
+
 func (p *Parser) parseType() *Ident {
 	tok := p.peek()
-	switch tok.TokenType {
-	case STRING, ERROR:
+	if p.isType(tok) {
 		p.advance()
 		return &Ident{Name: tok.Lexeme}
-	default:
-		panic("expected type")
 	}
+	panic(fmt.Sprintf("expected type, got %v", tok.TokenType))
 }
 
 func (p *Parser) parseBlockStmt() *BlockStmt {
@@ -100,6 +112,8 @@ func (p *Parser) parseReturnStmt() *ReturnStmt {
 			stmts.Results = append(stmts.Results, &NilLit{})
 		} else if p.check(COMMA) {
 			p.advance()
+		} else {
+			break
 		}
 	}
 	return stmts
@@ -108,15 +122,30 @@ func (p *Parser) parseReturnStmt() *ReturnStmt {
 func (p *Parser) parseStmt() Stmt {
 	if p.check(RETURN) {
 		return p.parseReturnStmt()
-	} else if p.check(IDENTIFIER) {
+	} else if p.check(IDENTIFIER) && p.peekNext().TokenType == DEFINE {
 		return p.parseAssignStmt()
+	} else if p.check(IDENTIFIER) {
+		panic("not implemented")
 	} else {
 		panic("Invalid Input")
 	}
 }
 
 func (p *Parser) parseAssignStmt() Stmt {
-	panic("unimplemented")
+
+	var values []Ident
+	value := p.parseIdent()
+	values = append(values, *value)
+
+	p.expect(DEFINE)
+
+	var exprs []Expr
+	expr := p.parseCallExpr()
+	exprs = append(exprs, expr)
+	return &AssignStmt{
+		Lhs: values,
+		Rhs: exprs,
+	}
 }
 
 func (p *Parser) peekNext() Token {
@@ -157,7 +186,7 @@ func (p *Parser) parseCallExpr() Expr {
 	}
 }
 
-func (p *Parser) parseFunc() *FuncDecl {
+func (p *Parser) ParseFunc() *FuncDecl {
 
 	p.expect(FUN)
 
