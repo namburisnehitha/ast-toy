@@ -1,4 +1,4 @@
-package asttoy
+package main
 
 type BlockStmt struct {
 	List []Stmt
@@ -21,8 +21,8 @@ func (rs *ReturnStmt) nodeType() string {
 func (rs *ReturnStmt) stmtNode() {}
 
 type AssignStmt struct {
-	ValueIdent []Ident
-	ExpeIdent  []Expr
+	Lhs []Ident
+	Rhs []Expr
 }
 
 func (as *AssignStmt) nodeType() string {
