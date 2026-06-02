@@ -1,4 +1,4 @@
-package asttoy
+package main
 
 type Node interface {
 	nodeType() string
@@ -13,4 +13,3 @@ type Expr interface {
 	Node
 	exprNode()
 }
-
