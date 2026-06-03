@@ -30,3 +30,13 @@ func (as *AssignStmt) nodeType() string {
 }
 
 func (as *AssignStmt) stmtNode() {}
+
+type ExprStmt struct {
+	X Expr
+}
+
+func (es *ExprStmt) nodeType() string {
+	return "ExprStmt"
+}
+
+func (es *ExprStmt) stmtNode() {}
