@@ -124,8 +124,8 @@ func (p *Parser) parseStmt() Stmt {
 		return p.parseReturnStmt()
 	} else if p.check(IDENTIFIER) && p.peekNext().TokenType == DEFINE {
 		return p.parseAssignStmt()
-	} else if p.check(IDENTIFIER) {
-		panic("not implemented")
+	} else if p.check(IDENTIFIER) && p.peekNext().TokenType == DOT {
+		return &ExprStmt{X: p.parseCallExpr()}
 	} else {
 		panic("Invalid Input")
 	}
