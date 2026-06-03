@@ -27,3 +27,10 @@ type CallExpr struct {
 
 func (c *CallExpr) exprNode()        {}
 func (c *CallExpr) nodeType() string { return "CallExpr" }
+
+type StringLit struct {
+	Value string
+}
+
+func (sl *StringLit) exprNode()        {}
+func (sl *StringLit) nodeType() string { return "StringLit" }
