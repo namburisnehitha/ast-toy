@@ -5,26 +5,21 @@ import (
 )
 
 func main() {
-	source := `func HttpGet(url string) (string, error) {
-    span := tracer.start(ctx, context)
-    return response, nil
+	source := `fun HttpGet(ctx context, url string) (string, error) {
+        ctx, span := tracer.Start(ctx, "HttpGet")
+        defer span.End()
+        return response, nil
 }`
 
 	tokens := NewScanner(source).Scan()
+	f := NewParser(tokens).ParseFunc()
 
-	ast := NewParser(tokens).ParseFunc()
+	info := AnalyseFunc(f)
+	fmt.Printf("FuncInfo: %+v\n", info)
 
-	for _, stmt := range ast.Body.List {
-		switch s := stmt.(type) {
-		case *AssignStmt:
-			callExpr := s.Rhs[0].(*CallExpr)
-			fmt.Printf("CallExpr.Fun: %+v\n", callExpr.Fun)
-			fmt.Printf("CallExpr.Args: %+v\n", callExpr.Args)
-			fmt.Printf("AssignStmt: %+v\n", s)
-			fmt.Printf("Rhs[0]: %+v\n", s.Rhs[0])
-		case *ReturnStmt:
-			fmt.Printf("ReturnStmt: %+v\n", s)
-		}
+	if ShouldInstrument(info) {
+		Instrument(f, info)
 	}
 
+	PrintFunc(f)
 }
