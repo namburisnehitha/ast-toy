@@ -21,6 +21,8 @@ const (
 	NIL
 	DEFINE
 	DOT
+	STRINGLIT
+	DEFER
 )
 
 type Token struct {
