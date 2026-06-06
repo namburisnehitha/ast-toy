@@ -15,7 +15,6 @@ func main() {
 	f := NewParser(tokens).ParseFunc()
 
 	info := AnalyseFunc(f)
-	fmt.Printf("FuncInfo: %+v\n", info)
 
 	if ShouldInstrument(info) {
 		Instrument(f, info)
