@@ -50,6 +50,15 @@ func (p *Parser) parseIdent() *Ident {
 	return &Ident{Name: tok.Lexeme}
 }
 
+func (p *Parser) isType(t Token) bool {
+	switch t.TokenType {
+	case STRING, ERROR, INT, IDENTIFIER:
+		return true
+	default:
+		return false
+	}
+}
+
 func (p *Parser) parseFieldList() *FieldList {
 	fields := &FieldList{}
 	for !p.check(RPAREN) && !p.check(EOF) {
@@ -69,15 +78,6 @@ func (p *Parser) parseFieldList() *FieldList {
 		fields.Fields = append(fields.Fields, *field)
 	}
 	return fields
-}
-
-func (p *Parser) isType(t Token) bool {
-	switch t.TokenType {
-	case STRING, ERROR, INT, IDENTIFIER:
-		return true
-	default:
-		return false
-	}
 }
 
 func (p *Parser) parseType() *Ident {
@@ -119,46 +119,6 @@ func (p *Parser) parseReturnStmt() *ReturnStmt {
 	return stmts
 }
 
-func (p *Parser) parseStmt() Stmt {
-	if p.check(RETURN) {
-		return p.parseReturnStmt()
-	} else if p.check(IDENTIFIER) && p.peekNext().TokenType == DEFINE {
-		return p.parseAssignStmt()
-	} else if p.check(IDENTIFIER) && p.peekNext().TokenType == DOT {
-		return &ExprStmt{X: p.parseCallExpr()}
-	} else {
-		panic("Invalid Input")
-	}
-}
-
-func (p *Parser) parseAssignStmt() Stmt {
-
-	var values []Ident
-	value := p.parseIdent()
-	values = append(values, *value)
-
-	p.expect(DEFINE)
-
-	var exprs []Expr
-	expr := p.parseCallExpr()
-	exprs = append(exprs, expr)
-	return &AssignStmt{
-		Lhs: values,
-		Rhs: exprs,
-	}
-}
-
-func (p *Parser) peekNext() Token {
-	if p.Current+1 >= len(p.Tokens) {
-		return Token{TokenType: EOF}
-	}
-	return p.Tokens[p.Current+1]
-}
-
-func (p *Parser) parseExpr() Expr {
-	return p.parseIdent()
-}
-
 func (p *Parser) parseCallExpr() Expr {
 	x := p.parseIdent()
 	p.expect(DOT)
@@ -184,6 +144,51 @@ func (p *Parser) parseCallExpr() Expr {
 		Fun:  selexp,
 		Args: args,
 	}
+}
+
+func (p *Parser) parseAssignStmt() Stmt {
+
+	var lhs []Ident
+	lhs = append(lhs, *p.parseIdent())
+	for p.check(COMMA) {
+		p.advance()
+		lhs = append(lhs, *p.parseIdent())
+	}
+	p.expect(DEFINE)
+
+	var exprs []Expr
+	expr := p.parseExpr()
+	exprs = append(exprs, expr)
+	return &AssignStmt{
+		Lhs: lhs,
+		Rhs: exprs,
+	}
+}
+
+func (p *Parser) parseStmt() Stmt {
+	if p.check(RETURN) {
+		return p.parseReturnStmt()
+	} else if p.check(IDENTIFIER) && p.peekNext().TokenType == DOT {
+		return &ExprStmt{X: p.parseCallExpr()}
+	} else if p.check(IDENTIFIER) {
+		return p.parseAssignStmt()
+	} else {
+		panic("Invalid Input")
+	}
+}
+
+func (p *Parser) peekNext() Token {
+	if p.Current+1 >= len(p.Tokens) {
+		return Token{TokenType: EOF}
+	}
+	return p.Tokens[p.Current+1]
+}
+
+func (p *Parser) parseExpr() Expr {
+	if p.check(IDENTIFIER) && p.peekNext().TokenType == DOT {
+		return p.parseCallExpr()
+	}
+	return p.parseIdent()
 }
 
 func (p *Parser) ParseFunc() *FuncDecl {
