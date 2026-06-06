@@ -40,3 +40,13 @@ func (es *ExprStmt) nodeType() string {
 }
 
 func (es *ExprStmt) stmtNode() {}
+
+type DeferStmt struct {
+	Call Expr
+}
+
+func (ds *DeferStmt) nodeType() string {
+	return "DeferStmt"
+}
+
+func (ds *DeferStmt) stmtNode() {}
