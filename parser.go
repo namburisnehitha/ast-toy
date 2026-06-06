@@ -131,11 +131,15 @@ func (p *Parser) parseCallExpr() Expr {
 
 	var args []Expr
 	for !p.check(RPAREN) {
-		arg := p.parseExpr()
+		if p.check(IDENTIFIER) {
+			args = append(args, p.parseIdent())
+		} else if p.check(STRINGLIT) {
+			tok := p.advance()
+			args = append(args, &StringLit{Value: tok.Lexeme})
+		}
 		if p.check(COMMA) {
 			p.advance()
 		}
-		args = append(args, arg)
 	}
 
 	p.expect(RPAREN)
@@ -157,6 +161,7 @@ func (p *Parser) parseAssignStmt() Stmt {
 	p.expect(DEFINE)
 
 	var exprs []Expr
+	fmt.Printf("rhs token: %+v\n", p.peek())
 	expr := p.parseExpr()
 	exprs = append(exprs, expr)
 	return &AssignStmt{
@@ -172,6 +177,9 @@ func (p *Parser) parseStmt() Stmt {
 		return &ExprStmt{X: p.parseCallExpr()}
 	} else if p.check(IDENTIFIER) {
 		return p.parseAssignStmt()
+	} else if p.check(DEFER) {
+		p.advance()
+		return &DeferStmt{Call: p.parseCallExpr()}
 	} else {
 		panic("Invalid Input")
 	}
