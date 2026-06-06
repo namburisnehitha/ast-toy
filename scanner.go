@@ -66,6 +66,12 @@ func (s *Scanner) scanToken() {
 		}
 	case '.':
 		s.Tokens = append(s.Tokens, s.makeToken(DOT, nil))
+	case '"':
+		for s.peek() != '"' && !s.isAtEnd() {
+			s.advance()
+		}
+		s.advance()
+		s.Tokens = append(s.Tokens, s.makeToken(STRINGLIT, nil))
 	case ' ':
 		break
 	case '\t':
@@ -96,12 +102,13 @@ func isAlphaNumeric(c byte) bool {
 }
 
 var keyWords = map[string]TokenType{
-	"func":   FUN,
+	"fun":    FUN,
 	"return": RETURN,
 	"int":    INT,
 	"string": STRING,
 	"error":  ERROR,
 	"nil":    NIL,
+	"defer":  DEFER,
 }
 
 func (s *Scanner) isAtEnd() bool {
