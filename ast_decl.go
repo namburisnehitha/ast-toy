@@ -12,8 +12,8 @@ type FuncDecl struct {
 }
 
 type Field struct {
-	Name Node
-	Type Node
+	Name *Ident
+	Type *Ident
 }
 
 type FieldList struct {
