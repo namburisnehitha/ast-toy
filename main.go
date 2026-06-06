@@ -2,8 +2,6 @@ package main
 
 func main() {
 	source := `fun HttpGet(ctx context, url string) (string, error) {
-        ctx, span := tracer.Start(ctx, "HttpGet")
-        defer span.End()
         return response, nil
 }`
 
