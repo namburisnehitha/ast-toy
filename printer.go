@@ -10,7 +10,7 @@ func printExpr(e Expr) {
 	case *Ident:
 		fmt.Printf("%s", ex.Name)
 	case *StringLit:
-		fmt.Printf("%q", ex.Value)
+		fmt.Printf("%s", ex.Value)
 	case *NilLit:
 		fmt.Printf("nil")
 	case *SelectorExpr:
@@ -83,7 +83,7 @@ func PrintFunc(f *FuncDecl) {
 			if i > 0 {
 				fmt.Printf(", ")
 			}
-			fmt.Printf("%s %s", field.Name.Name, field.Type.Name)
+			fmt.Printf("%s", field.Type.Name)
 		}
 		fmt.Printf(")")
 	}
