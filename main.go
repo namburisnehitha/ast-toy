@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 func main() {
 	source := `fun HttpGet(ctx context, url string) (string, error) {
         ctx, span := tracer.Start(ctx, "HttpGet")
